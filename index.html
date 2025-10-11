@@ -3,18 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Level 2 – Purify Water (Popup End Modal)</title>
+  <title> – Purify Water (Popup End Modal)</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="phone" role="application" aria-label="Level 2 – Purify Water (Popup End Modal)">
+  <div class="phone" role="application" aria-label="– Purify Water (Popup End Modal)">
     <div class="top">
-  <div class="logo"><img src="img/cw_logo-horizontal.png" alt="charity: water logo" style="width: 90%; height: auto; display: block;" /></div>
+      <div class="logo">
+        <img src="img/cw_logo-horizontal.png" alt="charity: water logo" style="width: 90%; height: auto; display: block;" />
+      </div>
+      <!-- LevelUp: Reset 버튼 -->
+      <button id="btnReset" class="resetBtn" aria-label="Reset game">Reset</button>
     </div>
 
     <div class="scoreCenter" id="scoreCenter">
       Score: <span id="score">0</span>
     </div>
+
+    <!-- Speed Up badge -->
+    <div id="boostBadge" class="boostBadge" aria-live="polite" style="display:none;">Speed Up! ⚡</div>
 
     <div class="bars">
       <div class="bar">
@@ -39,31 +46,27 @@
       </div>
     </div>
 
-<!-- Start modal -->
-<div id="start" class="backdrop" role="dialog" aria-modal="true">
-  <div class="modal" role="document">
-    <div class="modalHeader">Clean Water Builder</div>
-    <div class="modalBody">
-      <p class="lineTop">Tap <strong>Start</strong> to begin.</p>
-      <p class="lineBottom">Catch clean drops, avoid dirty ones!</p>
+    <!-- Start modal -->
+    <div id="start" class="backdrop" role="dialog" aria-modal="true">
+      <div class="modal" role="document">
+        <div class="modalHeader">Clean Water Builder</div>
+        <div class="modalBody">
+          <p class="lineTop">Tap <strong>Start</strong> to begin.</p>
+          <p class="lineBottom">Catch clean drops, avoid dirty ones!</p>
+        </div>
+        <div class="row">
+          <button id="btnStart">Start</button>
+        </div>
+      </div>
     </div>
-    <div class="row">
-      <button id="btnStart">Start</button>
-    </div>
-  </div>
-</div>
 
-    <!-- Popup modal -->
+    <!-- End modal -->
     <div id="backdrop" class="backdrop" role="dialog" aria-modal="true">
       <div class="modal" role="document">
         <div class="modalHeader">Well done! 🎉</div>
         <div class="modalBody">
           <p class="lineTop">You Gave Clean Water to</p>
           <p class="bigNumber" id="peopleNum">0 People!</p>
-          <img
-            alt="Delivering jerrycans to villagers"
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Jerrycan_icon.png/600px-Jerrycan_icon.png"
-          />
         </div>
         <div class="row">
           <button id="btnReplay">Play Again</button>
@@ -76,4 +79,3 @@
   <script defer src="script.js"></script>
 </body>
 </html>
-

@@ -17,10 +17,9 @@ Fonts:
 
 /* === Brand tokens === */
 :root{
-  --cw-yellow:#FFC907; /* was #FFC300 */
-  --cw-blue:#2E9DF7;   /* was #2DA9FF */
+  --cw-yellow:#FFC907;
+  --cw-blue:#2E9DF7;
 
-  /* optional secondary tokens (필요할 때 사용) */
   --cw-lightblue:#8BD1CB;
   --cw-green:#4FCB53;
   --cw-orange:#FF902A;
@@ -34,25 +33,53 @@ Fonts:
   --muted:#dcdcdc;
 }
 
-/* 폰트 스택: 상용 폰트가 없으면 안전한 대체로 자동 폴백 */
+*{box-sizing:border-box}
 body{
-  margin:0;display:grid;place-items:center;background:#f2f2f2;color:var(--ink);
+  margin:0;
+  display:grid;
+  place-items:center;
+  background:#f2f2f2;
+  color:var(--ink);
   font-family:
     "Proxima Nova","Avenir Next",Avenir,
     system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 
-:root{ --cw-yellow:#FFC300; --cw-blue:#2DA9FF; --ink:#222; --paper:#FFF6E5; --muted:#dcdcdc; }
-*{box-sizing:border-box}
-body{margin:0;display:grid;place-items:center;background:#f2f2f2;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink)}
-
-.phone{width:min(380px,92vw);height:760px;background:var(--paper);border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.12);border:1px solid #e8e1d4;position:relative;overflow:hidden}
+.phone{
+  /* 기본: 모바일 */
+  width:min(380px,92vw);
+  height:760px;
+  background:var(--paper);
+  border-radius:18px;
+  box-shadow:0 16px 40px rgba(0,0,0,.12);
+  border:1px solid #e8e1d4;
+  position:relative;
+  overflow:hidden;
+}
 
 .top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
 .logo{height:28px;width:180px;background:#E2E8E0;border-radius:6px;display:grid;place-items:center;font-size:12px;color:#4b5563}
 
+/* Reset button */
+.resetBtn{
+  background:var(--cw-yellow);
+  border:none;border-radius:10px;
+  padding:6px 12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
 /* Score centered above bars */
-.scoreCenter{font-weight:800;text-align:center;margin:12px 0 10px 0;font-size:20px}
+.scoreCenter{font-weight:800;text-align:center;margin:12px 0 6px 0;font-size:20px}
+
+/* Speed Up badge */
+.boostBadge{
+  text-align:center;
+  font-weight:900;
+  color:var(--cw-red);
+  margin-bottom:8px;
+  animation:pop 280ms ease;
+}
 
 /* Bars */
 .bars{padding:6px 18px 0 18px;display:flex;flex-direction:column;gap:12px}
@@ -71,6 +98,7 @@ body{margin:0;display:grid;place-items:center;background:#f2f2f2;font-family:sys
 .drop{position:absolute;top:-60px;display:block;width:48px;height:48px}
 .drop.clean{--c:var(--cw-blue)}
 .drop.dirty{--c:#8b6f5a}
+.drop.obstacle{--c:var(--cw-red)} /* 빨간 장애물 */
 .drop:before{content:"";position:absolute;inset:0;background:var(--c);border-radius:20px 20px 50% 50% / 30% 30% 70% 70%;transform:rotate(45deg)}
 .drop:after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:80%;height:18px;border-radius:999px;background:rgba(255,255,255,.35)}
 
@@ -81,9 +109,9 @@ body{margin:0;display:grid;place-items:center;background:#f2f2f2;font-family:sys
 .can{width:150px;height:150px;position:relative;background:none;display:block}
 .can img{display:block;width:100%;height:100%;object-fit:contain;user-drag:none;-webkit-user-drag:none;pointer-events:none;}
 
-/* ===== End Modal (popup) ===== */
+/* ===== Modals ===== */
 .backdrop{position:absolute;inset:0;background:#00000099;display:none;align-items:center;justify-content:center}
-.modal{width:88%;max-width:320px;background:#FFF6E5;border-radius:16px;box-shadow:0 20px 40px #00000040;border:1px solid #eee;text-align:center;overflow:hidden}
+.modal{width:88%;max-width:320px;background:var(--paper);border-radius:16px;box-shadow:0 20px 40px #00000040;border:1px solid #eee;text-align:center;overflow:hidden}
 .modalHeader{background:var(--cw-yellow);padding:10px 14px;font-weight:900}
 .modalBody{padding:18px}
 .lineTop{font-size:14px;font-weight:700;color:#374151;margin:0 0 6px}
@@ -93,6 +121,18 @@ body{margin:0;display:grid;place-items:center;background:#f2f2f2;font-family:sys
 .row{display:flex;gap:8px;justify-content:center;padding:0 0 16px}
 .row button{background:var(--cw-yellow);border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer}
 .row .ghost{background:#eaeaea;color:#222}
+
+/* ===== Confetti ===== */
+.confetti{
+  position:absolute;
+  top:-10px; left:0;
+  font-size:20px; line-height:1;
+  animation:confettiFall 1200ms linear forwards;
+  pointer-events:none; user-select:none;
+}
+@keyframes confettiFall{
+  to{ transform:translateY(110vh) rotate(360deg); opacity:0.9; }
+}
 
 /* ===== Animations ===== */
 .can.hit{animation:boing 500ms cubic-bezier(.34,1.56,.64,1)}
@@ -104,6 +144,43 @@ body{margin:0;display:grid;place-items:center;background:#f2f2f2;font-family:sys
 .scoreCenter.pop{animation:pop 280ms ease}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
 
-/* subtle red flash on dirty */
+/* subtle red flash on dirty/obstacle */
 #qualityBar.flash::after{content:"";position:absolute;inset:0;border-radius:999px;box-shadow:0 0 0 4px rgba(200,80,60,.25) inset;animation:flash 420ms ease forwards}
 @keyframes flash{from{opacity:1} to{opacity:0}}
+
+/* =========================
+   Responsive overrides
+   ========================= */
+
+/* on the tablet */
+@media (min-width: 768px){
+  .phone{ width:420px; height:840px; }
+  .canWrap{ width:170px; left:calc(50% - 85px); bottom:18px; }
+  .can{ width:170px; height:170px; }
+}
+
+/* on desktop — 와이드 레이아웃 */
+@media (min-width: 1200px){
+  /* 가로로 넓게, 세로는 살짝 낮게 */
+  .phone{
+    width:min(960px, 92vw);
+    height:600px;
+  }
+
+  /* 상단/HUD 여백 미세 조정 */
+  .scoreCenter{ margin:16px 0 8px; }
+  .bars{ padding:6px 24px 0 24px; }
+
+  /* 플레이 구역을 좌우로 넓히고 상하 여백 조정 */
+  .play{
+    inset: 200px 0 110px 0;  /* top right bottom left */
+  }
+
+  /* 제리캔 크기 확대 */
+  .canWrap{
+    width:200px;
+    left:calc(50% - 100px);
+    bottom:22px;
+  }
+  .can{ width:200px; height:200px; }
+}
