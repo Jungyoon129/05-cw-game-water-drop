@@ -1,25 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Drop Game</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Level 2 – Purify Water (Popup End Modal)</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="game-wrapper">
-        <h1 class="game-title">Water Drop</h1>
-        <p class="game-tagline">Catch the good drops, avoid the bad ones!</p>
-        <div class="score-panel">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div class="timer">Time: <span id="time">30</span>s</div>
-            <button id="start-btn">Start Game</button>
-        </div>
-        
-        <div id="game-container">
-        </div>
+  <div class="phone" role="application" aria-label="Level 2 – Purify Water (Popup End Modal)">
+    <div class="top">
+  <div class="logo"><img src="img/cw_logo-horizontal.png" alt="charity: water logo" style="width: 90%; height: auto; display: block;" /></div>
     </div>
-    
-    <script src="script.js"></script>
+
+    <div class="scoreCenter" id="scoreCenter">
+      Score: <span id="score">0</span>
+    </div>
+
+    <div class="bars">
+      <div class="bar">
+        <div class="fill" id="timeFill"></div>
+        <div class="label">Timer bar</div>
+      </div>
+      <div class="bar -dual" id="qualityBar">
+        <div class="fill-left" id="cleanFill"></div>
+        <div class="fill-right" id="dirtyFill"></div>
+        <div class="caps">
+          <span id="cleanPct">0%</span>
+          <span id="dirtyPct">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="play" class="play" aria-label="falling water drops area"></div>
+
+    <div id="canWrap" class="canWrap">
+      <div id="can" class="can" aria-label="Jerry can (move left/right)">
+        <img src="img/water-can-transparent.png" alt="Jerry can" style="width: 100%; height: 90%; object-fit: contain;" />
+      </div>
+    </div>
+
+<!-- Start modal -->
+<div id="start" class="backdrop" role="dialog" aria-modal="true">
+  <div class="modal" role="document">
+    <div class="modalHeader">Clean Water Builder</div>
+    <div class="modalBody">
+      <p class="lineTop">Tap <strong>Start</strong> to begin.</p>
+      <p class="lineBottom">Catch clean drops, avoid dirty ones!</p>
+    </div>
+    <div class="row">
+      <button id="btnStart">Start</button>
+    </div>
+  </div>
+</div>
+
+    <!-- Popup modal -->
+    <div id="backdrop" class="backdrop" role="dialog" aria-modal="true">
+      <div class="modal" role="document">
+        <div class="modalHeader">Well done! 🎉</div>
+        <div class="modalBody">
+          <p class="lineTop">You Gave Clean Water to</p>
+          <p class="bigNumber" id="peopleNum">0 People!</p>
+          <img
+            alt="Delivering jerrycans to villagers"
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Jerrycan_icon.png/600px-Jerrycan_icon.png"
+          />
+        </div>
+        <div class="row">
+          <button id="btnReplay">Play Again</button>
+          <button id="btnMenu" class="ghost">Back to Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="script.js"></script>
 </body>
 </html>
+

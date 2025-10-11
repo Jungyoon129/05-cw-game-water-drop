@@ -1,9 +1,7 @@
 /* Charity: water Brand Colors & Fonts
-
 Primary Colors:
 - Yellow:     #FFC907
 - Blue:       #2E9DF7
-
 Secondary Colors:
 - Light Blue: #8BD1CB
 - Green:      #4FCB53
@@ -15,131 +13,97 @@ Secondary Colors:
 Fonts:
 - Proxima Nova
 - Avenir
-
 */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* === Brand tokens === */
+:root{
+  --cw-yellow:#FFC907; /* was #FFC300 */
+  --cw-blue:#2E9DF7;   /* was #2DA9FF */
+
+  /* optional secondary tokens (필요할 때 사용) */
+  --cw-lightblue:#8BD1CB;
+  --cw-green:#4FCB53;
+  --cw-orange:#FF902A;
+  --cw-red:#F5402C;
+  --cw-darkgreen:#159A48;
+  --cw-pink:#F16061;
+
+  /* neutrals */
+  --ink:#222;
+  --paper:#FFF6E5;
+  --muted:#dcdcdc;
 }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f0f0f0;
-    font-family: Arial, sans-serif;
+/* 폰트 스택: 상용 폰트가 없으면 안전한 대체로 자동 폴백 */
+body{
+  margin:0;display:grid;place-items:center;background:#f2f2f2;color:var(--ink);
+  font-family:
+    "Proxima Nova","Avenir Next",Avenir,
+    system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 
-.game-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
+:root{ --cw-yellow:#FFC300; --cw-blue:#2DA9FF; --ink:#222; --paper:#FFF6E5; --muted:#dcdcdc; }
+*{box-sizing:border-box}
+body{margin:0;display:grid;place-items:center;background:#f2f2f2;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink)}
 
-.score-panel {
-    display: flex;
-    justify-content: space-between;  /* Space between score and button */
-    align-items: center;
-    width: 800px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+.phone{width:min(380px,92vw);height:760px;background:var(--paper);border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.12);border:1px solid #e8e1d4;position:relative;overflow:hidden}
 
-.timer {
-    flex: 0 1 auto;
-    font-size: 24px;
-    font-weight: bold;
-}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.logo{height:28px;width:180px;background:#E2E8E0;border-radius:6px;display:grid;place-items:center;font-size:12px;color:#4b5563}
 
-#game-container {
-    width: 800px;
-    height: 600px;
-    background-color: #e6f7ff;
-    border: 2px solid #333;
-    border-radius: 8px;
-    position: relative;
-    overflow: hidden;
-}
+/* Score centered above bars */
+.scoreCenter{font-weight:800;text-align:center;margin:12px 0 10px 0;font-size:20px}
 
+/* Bars */
+.bars{padding:6px 18px 0 18px;display:flex;flex-direction:column;gap:12px}
+.bar{position:relative;height:18px;background:#fff;border:1px solid var(--muted);border-radius:999px;overflow:hidden}
+.bar .label{position:absolute;inset:0;display:grid;place-items:center;color:#0b4a6e;font-weight:700;font-size:12px;pointer-events:none}
+.fill{position:absolute;inset:0 auto 0 0;width:100%;background:linear-gradient(90deg,var(--cw-blue),#91d5ff)}
 
-#start-btn {
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
+/* Dual water-quality bar with percentage labels */
+.bar.-dual{position:relative}
+.bar.-dual .fill-left{position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,var(--cw-blue),#8bd2ff)}
+.bar.-dual .fill-right{position:absolute;right:0;top:0;height:100%;width:0;background:linear-gradient(90deg,#b2866b,#8b6f5a)}
+.bar.-dual .caps{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 6px;font-size:11px;color:#053b5e;font-weight:700}
 
-#start-btn:hover {
-    background-color: #45a049;
-}
+/* Playfield & motion */
+.play{position:absolute;inset:220px 0 92px 0;overflow:hidden}
+.drop{position:absolute;top:-60px;display:block;width:48px;height:48px}
+.drop.clean{--c:var(--cw-blue)}
+.drop.dirty{--c:#8b6f5a}
+.drop:before{content:"";position:absolute;inset:0;background:var(--c);border-radius:20px 20px 50% 50% / 30% 30% 70% 70%;transform:rotate(45deg)}
+.drop:after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:80%;height:18px;border-radius:999px;background:rgba(255,255,255,.35)}
 
-.score {
-    flex: 0 1 auto;  /* Don't grow, can shrink, auto basis */
-    font-size: 24px;
-    font-weight: bold;
-}
+@keyframes fall {from{top:-60px} to{top:100%}}
 
-.water-drop {
-    position: absolute;
-    width: 60px;  /* increased from 40px */
-    height: 60px; /* increased from 40px */
-    background-color: #0099ff;
-    border-radius: 50%;
-    animation: dropFall linear forwards;
-    transform-origin: center;
-    cursor: pointer;
-    padding: 15px;  /* Add padding for larger click area */
-    margin: -15px;  /* Offset padding to maintain visual size */
-    transition: transform 0.1s ease;  /* Smooth hover effect */
-}
+/* Jerry can (movable) */
+.canWrap{position:absolute;bottom:16px;left:calc(50% - 75px);width:150px;transform:none;touch-action:none}
+.can{width:150px;height:150px;position:relative;background:none;display:block}
+.can img{display:block;width:100%;height:100%;object-fit:contain;user-drag:none;-webkit-user-drag:none;pointer-events:none;}
 
-.water-drop:hover {
-    transform: scale(1.1);  /* Slight grow effect on hover */
-}
+/* ===== End Modal (popup) ===== */
+.backdrop{position:absolute;inset:0;background:#00000099;display:none;align-items:center;justify-content:center}
+.modal{width:88%;max-width:320px;background:#FFF6E5;border-radius:16px;box-shadow:0 20px 40px #00000040;border:1px solid #eee;text-align:center;overflow:hidden}
+.modalHeader{background:var(--cw-yellow);padding:10px 14px;font-weight:900}
+.modalBody{padding:18px}
+.lineTop{font-size:14px;font-weight:700;color:#374151;margin:0 0 6px}
+.bigNumber{font-size:40px;font-weight:900;color:#111;margin:0}
+.lineBottom{font-size:14px;font-weight:700;color:#374151;margin:6px 0 10px}
+.modalBody img{width:120px;height:auto;margin:6px auto 0;display:block}
+.row{display:flex;gap:8px;justify-content:center;padding:0 0 16px}
+.row button{background:var(--cw-yellow);border:none;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer}
+.row .ghost{background:#eaeaea;color:#222}
 
-.bad-drop {
-    background-color: #ff4444;
-}
+/* ===== Animations ===== */
+.can.hit{animation:boing 500ms cubic-bezier(.34,1.56,.64,1)}
+@keyframes boing{0%{transform:translateZ(0) scale(1,1)}40%{transform:scale(1.15,.9)}70%{transform:scale(.96,1.08)}100%{transform:scale(1,1)}}
 
-.game-title {
-    color: #131313;
-    font-size: 48px;
-    margin-top: 0;
-    margin-bottom: 5px;  /* reduced from 20px */
-    text-align: center;
-}
+#qualityBar.shake{animation:shake 520ms cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
 
-.game-tagline {
-    color: #666;
-    font-size: 18px;
-    margin-bottom: 20px;
-    text-align: center;
-}
+.scoreCenter.pop{animation:pop 280ms ease}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
 
-@keyframes dropFall {
-    from {
-        transform: translateY(-20px);
-    }
-    to {
-        transform: translateY(600px);
-    }
-}
-
-@media (max-width: 850px) {
-    .game-wrapper, .score-panel, #game-container {
-        width: 95vw;
-    }
-    
-    #game-container {
-        height: 70vh;
-    }
-}
+/* subtle red flash on dirty */
+#qualityBar.flash::after{content:"";position:absolute;inset:0;border-radius:999px;box-shadow:0 0 0 4px rgba(200,80,60,.25) inset;animation:flash 420ms ease forwards}
+@keyframes flash{from{opacity:1} to{opacity:0}}
