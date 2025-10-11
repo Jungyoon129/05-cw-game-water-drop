@@ -184,3 +184,12 @@ body{
   }
   .can{ width:200px; height:200px; }
 }
+/* 초와이드(가로 긴) 화면에서만 제리캔 살짝 축소 */
+@media (min-width: 1200px) and (orientation: landscape) and (min-aspect-ratio: 16/9){
+  .canWrap{
+    width:170px;                 /* 기존 200px → 170px */
+    left:calc(50% - 85px);
+    bottom:22px;
+  }
+  .can{ width:170px; height:170px; }
+}
