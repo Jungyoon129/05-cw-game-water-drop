@@ -102,7 +102,10 @@ body{
 .drop:before{content:"";position:absolute;inset:0;background:var(--c);border-radius:20px 20px 50% 50% / 30% 30% 70% 70%;transform:rotate(45deg)}
 .drop:after{content:"";position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:80%;height:18px;border-radius:999px;background:rgba(255,255,255,.35)}
 
-@keyframes fall {from{top:-60px} to{top:100%}}
+@keyframes fall {
+  from { top: var(--start, -60px); }
+  to   { top: calc(100% - var(--h)); } /* 드롭 높이만큼 보정하여 바닥에 '딱' 닿음 */
+}
 
 /* Jerry can (movable) */
 .canWrap{position:absolute;bottom:16px;left:calc(50% - 75px);width:150px;transform:none;touch-action:none}
@@ -187,9 +190,52 @@ body{
 /* 초와이드(가로 긴) 화면에서만 제리캔 살짝 축소 */
 @media (min-width: 1200px) and (orientation: landscape) and (min-aspect-ratio: 16/9){
   .canWrap{
-    width:170px;                 /* 기존 200px → 170px */
-    left:calc(50% - 85px);
+    width: 133px;                 /* 기존 200px → 133px */
+    left:calc(50% - 66.5px);
     bottom:22px;
   }
-  .can{ width:170px; height:170px; }
+  .can{ width:133px; height:133px; }
+}
+/* === Jerrycan size controller (desktop default = big) === */
+:root{
+  --can-size-desktop: 200px;   /* 세로(또는 좁은 비율)에서 사용할 기본 큰 사이즈 */
+  --can-size-wide:    133px;   /* 가로로 넓을 때 유지할 작은 사이즈 (≈ 2/3) */
+  --can-size: var(--can-size-desktop);
+}
+
+/* 데스크탑 기본 레이아웃에서 can 크기 변수 적용 */
+@media (min-width: 1200px){
+  .canWrap{
+    width: var(--can-size);
+    left: calc(50% - (var(--can-size) / 2));
+    bottom: 22px;
+  }
+  .can{
+    width: var(--can-size);
+    height: var(--can-size);
+  }
+}
+
+/* 가로로 넓은 화면(landscape)에서는 끝까지 세로로 바뀌기 전까지 작은 크기 유지 */
+@media (min-width: 1200px) and (orientation: landscape){
+  :root{ --can-size: var(--can-size-wide); }
+}
+
+/* 세로(portrait)로 바뀌면 다시 큰 크기로 복귀 */
+@media (min-width: 1200px) and (orientation: portrait){
+  :root{ --can-size: var(--can-size-desktop); }
+}
+
+/* (선택) 화면 비율이 넓지 않은 경우(거의 정사각형/세로 느낌)도 큰 크기로 복귀 */
+@media (min-width: 1200px) and (max-aspect-ratio: 10/9){
+  :root{ --can-size: var(--can-size-desktop); }
+}
+/* 1200~1268px 구간에서도 캔을 작게 고정 */
+@media (min-width: 1200px) and (max-width: 1268px){
+  .canWrap{
+    width:133px;
+    left:calc(50% - 66.5px);
+    bottom:22px;
+  }
+  .can{ width:133px; height:133px; }
 }

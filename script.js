@@ -138,14 +138,11 @@ function hideStart(){       // Start 버튼 누르면 모달 닫기
 function spawn(){
   const el = document.createElement('i');
 
-  // 타입 결정: obstacle(빨간) 우선 → 아니면 clean/dirty
+  // 타입 결정 (기존 로직 유지)
   const r = Math.random();
   let type = 'clean';
-  if (r < CFG.obstacleChance) {
-    type = 'obstacle';
-  } else {
-    type = (Math.random() < CFG.cleanChance) ? 'clean' : 'dirty';
-  }
+  if (r < CFG.obstacleChance) type = 'obstacle';
+  else type = (Math.random() < CFG.cleanChance) ? 'clean' : 'dirty';
 
   el.className = `drop ${type}`;
   el.dataset.type = type;
@@ -154,7 +151,10 @@ function spawn(){
   el.style.width = el.style.height = size + 'px';
   el.style.left = Math.round(Math.random() * (UI.play.clientWidth - size)) + 'px';
 
-  // 기본 낙하시간(1.2~2.4s)을 현재 속도배율로 나눠 더 빠르게
+  // ★ 추가: 드롭 높이를 CSS 변수로 전달 (바닥에 '딱' 닿게)
+  el.style.setProperty('--h', size + 'px');
+
+  // 낙하 시간 (기존 가속 로직 유지)
   const base = 1.2 + Math.random() * 1.2;
   const dur = Math.max(0.5, base / state.speedMul);
   el.style.animation = `fall ${dur}s linear forwards`;
