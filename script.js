@@ -18,7 +18,8 @@ const UI = {
   btnReplay: document.getElementById('btnReplay'),
   btnMenu: document.getElementById('btnMenu'),
   btnReset: document.getElementById('btnReset'),
-  boostBadge: document.getElementById('boostBadge')
+  boostBadge: document.getElementById('boostBadge'),
+  toast: document.getElementById('toast'),            // ★ 추가: 토스트
 };
 
 // ========= Difficulty presets =========
@@ -43,8 +44,53 @@ const state = {
   running: false,
   speedMul: 1,
   currentSpawn: CFG.spawn,
-  difficulty: 'normal'
+  difficulty: 'normal',
+  villages: 0,                        // ★ 추가: 10점당 1마을 카운트
 };
+
+// ========= SFX (간단 on/off + 로더) =========
+const SETTINGS = { sfxEnabled: true };
+
+function loadAudio(path, volume = 0.6){
+  const a = new Audio(path);
+  a.preload = 'auto';
+  a.volume = volume;
+  return a;
+}
+
+// 파일 경로는 프로젝트에 맞게 sounds/ 폴더에 넣어주세요
+const SFX = {
+  clean:    loadAudio('sounds/clean-boing.mp3',   0.55), // 깨끗한 물: 또잉
+  obstacle: loadAudio('sounds/obstacle-beep.mp3', 0.60), // 빨간 물: 삐—
+  dirty:    loadAudio('sounds/dirty-leak.mp3',    0.60), // 더러운 물: 물 새는 소리
+};
+
+function playSfx(aud){
+  if(!SETTINGS.sfxEnabled || !aud) return;
+  try { aud.currentTime = 0; aud.play(); } catch(e) {}
+}
+
+// ========= Toast =========
+function showToast(message, ms=1600){
+  if(!UI.toast) return;
+  UI.toast.textContent = message;
+  UI.toast.classList.add('show');
+  setTimeout(()=> UI.toast.classList.remove('show'), ms);
+}
+
+// 10점마다 village 1 증가 → 토스트
+function checkVillageMilestone(){
+  const newVillages = Math.floor(state.score / 10);
+  if (newVillages > state.villages){
+    const gained = newVillages - state.villages;
+    state.villages = newVillages;
+    for(let i=0;i<gained;i++){
+      const n = state.villages - (gained - 1 - i);
+      const label = (n === 1) ? '1 village' : `${n} villages`;
+      showToast(`Clean water delivered to ${label}! 💛`);
+    }
+  }
+}
 
 function updateHUD(){
   UI.timeFill.style.width = (state.time / CFG.duration * 100) + '%';
@@ -74,6 +120,7 @@ function resetState(){
   state.running = false;
   state.speedMul = 1;
   state.currentSpawn = CFG.spawn;
+  state.villages = 0;                       // ★ 마일스톤 초기화
   UI.play.innerHTML = '';
   updateHUD();
 }
@@ -173,12 +220,19 @@ function checkCollision(drop){
         UI.scoreCenter.classList.remove('pop');
       }, 500);
 
+      // ★ 사운드 + 마일스톤
+      playSfx(SFX.clean);
+      checkVillageMilestone();
+
     } else if (drop.dataset.type === 'dirty') {
       state.score = Math.max(0, state.score - 1);
       state.pollution = Math.min(100, state.pollution + 10);
       state.dirty = Math.min(100, state.dirty + 10);
       UI.qualityBar.classList.add('shake','flash');
       setTimeout(()=>{ UI.qualityBar.classList.remove('shake','flash'); }, 520);
+
+      // ★ 사운드
+      playSfx(SFX.dirty);
 
     } else if (drop.dataset.type === 'obstacle') {
       // obstacle: speed up + score penalty
@@ -196,6 +250,9 @@ function checkCollision(drop){
 
       UI.qualityBar.classList.add('flash','shake');
       setTimeout(()=>{ UI.qualityBar.classList.remove('flash','shake'); }, 520);
+
+      // ★ 사운드
+      playSfx(SFX.obstacle);
     }
 
     updateHUD();

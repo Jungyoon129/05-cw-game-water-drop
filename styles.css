@@ -14,8 +14,8 @@
   --paper:#FFF6E5;
 
   /* Jerrycan size controls (desktop defaults) */
-  --can-size-desktop: 200px;
-  --can-size-wide:    133px;
+  --can-size-desktop: 184px;  /* 기존 200px → 184px */
+  --can-size-wide:    124px;  /* 기존 133px → 124px */
   --can-size: var(--can-size-desktop);
 }
 
@@ -94,9 +94,22 @@ body{
   to   { top: calc(100% - var(--h)); }
 }
 
-/* Jerry can */
-.canWrap{position:absolute;bottom:16px;left:calc(50% - 75px);width:150px;transform:none;touch-action:none}
-.can{width:150px;height:150px;position:relative;background:none;display:block}
+/* Jerry can — 모바일 기본 (사이즈 축소 + 약간 위로) */
+.canWrap{
+  position:absolute;
+  bottom:28px;                 /* 기존 16px → 28px */
+  left:calc(50% - 75px);       /* 초기 중앙 배치 (드래그 시 JS가 덮어씀) */
+  width:136px;                 /* 기존 150px → 136px */
+  transform:none;
+  touch-action:none;
+}
+.can{
+  width:136px;                 /* 기존 150px → 136px */
+  height:136px;
+  position:relative;
+  background:none;
+  display:block;
+}
 .can img{display:block;width:100%;height:100%;object-fit:contain;user-drag:none;-webkit-user-drag:none;pointer-events:none}
 
 /* ===== Modals ===== */
@@ -132,11 +145,21 @@ body{
 
 /* ===== Footer ===== */
 .gameFooter {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  text-align: center; font-size: 13px; line-height: 1.2;
-  padding: 10px 12px; background: #fffaf0; border-top: 1px solid #eadfcb; z-index: 2;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  text-align: center;
+  font-size: 10px;           /*  13px → 8px */
+  line-height: 0.5;          /* 1.2 → 0.5 */
+  padding: 3px px;         /* 10px 12px → 4px 6px */
+  background: #fffaf0;
+  border-top: 1px solid #eadfcb;
+  z-index: 2;
 }
-.gameFooter a { color: var(--cw-blue); font-weight: 800; text-decoration: none; }
+.gameFooter a {
+  color: var(--cw-blue);
+  font-weight: 800;
+  text-decoration: none;
+}
 .gameFooter a:hover { text-decoration: underline; }
 
 /* ===== Confetti ===== */
@@ -152,7 +175,8 @@ body{
 #qualityBar.shake{animation:shake 520ms cubic-bezier(.36,.07,.19,.97)}
 @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
 .scoreCenter.pop{animation:pop 280ms ease}
-@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}
+}
 #qualityBar.flash::after{content:"";position:absolute;inset:0;border-radius:999px;box-shadow:0 0 0 4px rgba(200,80,60,.25) inset;animation:flash 420ms ease forwards}
 @keyframes flash{from{opacity:1} to{opacity:0}}
 
@@ -183,8 +207,12 @@ body{
 /* Tablet */
 @media (min-width: 768px){
   .phone{ width:420px; height:840px; }
-  .canWrap{ width:170px; left:calc(50% - 85px); bottom:18px; }
-  .can{ width:170px; height:170px; }
+  .canWrap{
+    width:160px;               /* 기존 170px → 160px */
+    left:calc(50% - 80px);
+    bottom:24px;               /* 기존 18px → 24px */
+  }
+  .can{ width:160px; height:160px; }
 }
 
 /* Desktop */
@@ -197,7 +225,7 @@ body{
   .canWrap{
     width: var(--can-size);
     left: calc(50% - (var(--can-size) / 2));
-    bottom: 22px;
+    bottom: 26px;             /* 기존 22px → 26px */
   }
   .can{
     width: var(--can-size);
@@ -215,6 +243,28 @@ body{
   :root{ --can-size: var(--can-size-desktop); }
 }
 @media (min-width: 1200px) and (max-width: 1268px){
-  .canWrap{ width:133px; left:calc(50% - 66.5px); bottom:22px; }
+  .canWrap{
+    width:133px;
+    left:calc(50% - 66.5px);
+    bottom:24px;             /* 기존 22px → 24px */
+  }
   .can{ width:133px; height:133px; }
 }
+/* Milestone Toast */
+.toast{
+  position:absolute;
+  top:140px; left:50%; transform:translateX(-50%);
+  max-width:80%;
+  background:#111; color:#fff; font-weight:800;
+  padding:10px 14px; border-radius:999px;
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+  opacity:0; pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;
+  z-index:3; text-align:center; font-size:14px;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+
+@media (min-width:1200px){
+  .toast{ top:120px; }
+}
+
