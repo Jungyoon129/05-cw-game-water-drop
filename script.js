@@ -1,6 +1,5 @@
-// script.js
+// ========= UI refs =========
 const UI = {
-  // playfield & HUD
   play: document.getElementById('play'),
   score: document.getElementById('score'),
   timeFill: document.getElementById('timeFill'),
@@ -12,28 +11,27 @@ const UI = {
   canEl: document.getElementById('can'),
   qualityBar: document.getElementById('qualityBar'),
   scoreCenter: document.getElementById('scoreCenter'),
-  // modals
   start: document.getElementById('start'),
   backdrop: document.getElementById('backdrop'),
-  // modal texts/buttons
   peopleNum: document.getElementById('peopleNum'),
   btnStart: document.getElementById('btnStart'),
   btnReplay: document.getElementById('btnReplay'),
   btnMenu: document.getElementById('btnMenu'),
   btnReset: document.getElementById('btnReset'),
-  // badge
   boostBadge: document.getElementById('boostBadge')
 };
 
-const CFG = {
-  duration: 30,
-  spawn: 600,          // 기본 스폰 간격(ms)
-  cleanChance: 0.65,   // 깨끗한 드롭 비율
-  obstacleChance: 0.15,// 장애물(빨간 드롭) 확률
-  minSpawn: 250,       // 스폰 간격 하한
-  speedStep: 0.15      // 장애물 1개당 낙하속도 상승 비율(15%)
+// ========= Difficulty presets =========
+const DIFF = {
+  easy:   { duration: 35, spawn: 650, cleanChance: 0.70, obstacleChance: 0.10, minSpawn: 260, speedStep: 0.12 },
+  normal: { duration: 30, spawn: 600, cleanChance: 0.65, obstacleChance: 0.15, minSpawn: 250, speedStep: 0.15 },
+  hard:   { duration: 25, spawn: 520, cleanChance: 0.58, obstacleChance: 0.20, minSpawn: 220, speedStep: 0.18 },
 };
 
+// active config (set at start)
+let CFG = { ...DIFF.normal };
+
+// ========= Game state =========
 const state = {
   time: CFG.duration,
   score: 0,
@@ -42,17 +40,15 @@ const state = {
   dirty: 0,
   tick: null,
   spawner: null,
-  running: false,     // 처음엔 시작 화면
-  // 속도/스폰 제어
-  speedMul: 1,           // 낙하 속도 배수 (1 = 기본)
-  currentSpawn: CFG.spawn// 현재 스폰 간격(ms)
+  running: false,
+  speedMul: 1,
+  currentSpawn: CFG.spawn,
+  difficulty: 'normal'
 };
 
 function updateHUD(){
-  // timer bar
   UI.timeFill.style.width = (state.time / CFG.duration * 100) + '%';
 
-  // dual bar (normalized %)
   const total = state.clean + state.dirty;
   const cPct = total > 0 ? Math.round((state.clean / total) * 100) : 0;
   const dPct = total > 0 ? 100 - cPct : 0;
@@ -61,7 +57,6 @@ function updateHUD(){
   UI.cleanPct.textContent = cPct + '%';
   UI.dirtyPct.textContent = dPct + '%';
 
-  // score
   UI.score.textContent = state.score;
 }
 
@@ -77,13 +72,16 @@ function resetState(){
   state.clean = 0;
   state.dirty = 0;
   state.running = false;
-
-  // 속도/스폰 리셋
   state.speedMul = 1;
   state.currentSpawn = CFG.spawn;
-
   UI.play.innerHTML = '';
   updateHUD();
+}
+
+function applyDifficulty(){
+  const chosen = document.querySelector('input[name="difficulty"]:checked')?.value || 'normal';
+  state.difficulty = chosen;
+  CFG = { ...DIFF[chosen] };
 }
 
 function start(){
@@ -94,10 +92,9 @@ function start(){
   state.tick = setInterval(()=>{
     state.time--;
     updateHUD();
-    if(state.time <= 0){ endRound(true); } // 시간 완주 = 승리
+    if(state.time <= 0){ endRound(true); } // time survived = win
   }, 1000);
 
-  // 현재 스폰 간격으로 시작
   state.spawner = setInterval(spawn, state.currentSpawn);
 }
 
@@ -105,40 +102,37 @@ function endRound(isWin=false){
   clearTimers();
   state.running = false;
 
-  // pause remaining drops
   [...UI.play.querySelectorAll('.drop')].forEach(d=>{
     d.style.animationPlayState = 'paused';
   });
 
-  // 승리면 컨페티!
   if (isWin) burstConfetti();
 
-  // show end modal
   UI.peopleNum.textContent = `${Math.max(0, state.score)} People!`;
   UI.backdrop.style.display = 'flex';
 }
 
-function resetAndStart(){   // Play Again / Reset → 즉시 재시작
+function resetAndStart(){
   resetState();
-  UI.backdrop.style.display = 'none'; // 엔드 모달 닫기 (중요)
+  UI.backdrop.style.display = 'none';
   start();
 }
 
-function showStart(){       // Back to Menu → 시작 화면 복귀
+function showStart(){
   clearTimers();
   resetState();
   UI.backdrop.style.display = 'none';
   UI.start.style.display = 'flex';
 }
 
-function hideStart(){       // Start 버튼 누르면 모달 닫기
+function hideStart(){
   UI.start.style.display = 'none';
 }
 
 function spawn(){
   const el = document.createElement('i');
 
-  // 타입 결정 (기존 로직 유지)
+  // decide type
   const r = Math.random();
   let type = 'clean';
   if (r < CFG.obstacleChance) type = 'obstacle';
@@ -150,11 +144,8 @@ function spawn(){
   const size = 28 + Math.round(Math.random() * 22);
   el.style.width = el.style.height = size + 'px';
   el.style.left = Math.round(Math.random() * (UI.play.clientWidth - size)) + 'px';
-
-  // ★ 추가: 드롭 높이를 CSS 변수로 전달 (바닥에 '딱' 닿게)
   el.style.setProperty('--h', size + 'px');
 
-  // 낙하 시간 (기존 가속 로직 유지)
   const base = 1.2 + Math.random() * 1.2;
   const dur = Math.max(0.5, base / state.speedMul);
   el.style.animation = `fall ${dur}s linear forwards`;
@@ -190,22 +181,19 @@ function checkCollision(drop){
       setTimeout(()=>{ UI.qualityBar.classList.remove('shake','flash'); }, 520);
 
     } else if (drop.dataset.type === 'obstacle') {
-      // === 레벨업 효과: 더 빠르게 + 점수 -2 ===
-      state.score = Math.max(0, state.score - 2);            // 요청: -2점
-      state.speedMul = +(state.speedMul + CFG.speedStep).toFixed(2); // 낙하 가속
-      state.currentSpawn = Math.max(CFG.minSpawn, state.currentSpawn - 80); // 스폰 빨라짐
+      // obstacle: speed up + score penalty
+      state.score = Math.max(0, state.score - 2);
+      state.speedMul = +(state.speedMul + CFG.speedStep).toFixed(2);
+      state.currentSpawn = Math.max(CFG.minSpawn, state.currentSpawn - 80);
 
-      // 스포너 재설정
       if (state.spawner) { clearInterval(state.spawner); }
       state.spawner = setInterval(spawn, state.currentSpawn);
 
-      // 배지 표시
       if (UI.boostBadge){
         UI.boostBadge.style.display = 'block';
         setTimeout(()=>{ UI.boostBadge.style.display = 'none'; }, 750);
       }
 
-      // 시각 피드백(빨간 플래시 + 흔들림 재사용)
       UI.qualityBar.classList.add('flash','shake');
       setTimeout(()=>{ UI.qualityBar.classList.remove('flash','shake'); }, 520);
     }
@@ -214,10 +202,10 @@ function checkCollision(drop){
   }
 
   drop.remove();
-  if(state.pollution >= 100){ endRound(false); } // 오염 100 = 패배
+  if(state.pollution >= 100){ endRound(false); } // lose if pollution 100
 }
 
-// Drag can left-right across the play area width (양끝까지 이동 보정)
+// Drag can left-right
 let isDragging = false;
 UI.can.addEventListener('pointerdown', ()=>{ isDragging = true; });
 document.addEventListener('pointerup',   ()=>{ isDragging = false; });
@@ -227,13 +215,9 @@ document.addEventListener('pointermove', (e)=>{
     const playRect  = UI.play.getBoundingClientRect();
     const canWidth  = UI.can.offsetWidth || 120;
 
-    // phone 좌표계에서의 x
     let x = e.clientX - phoneRect.left - canWidth/2;
-
-    // 이동 한계를 #play 좌우 끝으로 제한
     const minX = (playRect.left - phoneRect.left);
     const maxX = (playRect.right - phoneRect.left) - canWidth;
-
     x = Math.max(minX, Math.min(maxX, x));
 
     UI.can.style.left = x + 'px';
@@ -242,7 +226,7 @@ document.addEventListener('pointermove', (e)=>{
   }
 });
 
-// Confetti (승리 시 간단 이모지 컨페티)
+// Simple emoji confetti
 function burstConfetti(){
   const emojis = ['🎉','✨','💛','💧','🎊'];
   const N = 36;
@@ -259,10 +243,14 @@ function burstConfetti(){
 }
 
 // Buttons
-UI.btnStart  && UI.btnStart.addEventListener('click', ()=>{ hideStart(); resetAndStart(); });
+UI.btnStart  && UI.btnStart.addEventListener('click', ()=>{
+  applyDifficulty();
+  hideStart();
+  resetAndStart();
+});
 UI.btnReplay && UI.btnReplay.addEventListener('click', resetAndStart);
 UI.btnMenu   && UI.btnMenu.addEventListener('click', showStart);
 UI.btnReset  && UI.btnReset.addEventListener('click', resetAndStart);
 
-// 첫 진입 → 시작 화면 보이기
+// First load → show start
 showStart();

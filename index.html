@@ -3,16 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> – Purify Water (Popup End Modal)</title>
+  <title>Clean Water Builder – Purify Water</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="phone" role="application" aria-label="– Purify Water (Popup End Modal)">
+  <div class="phone" role="application" aria-label="Clean Water Builder">
     <div class="top">
       <div class="logo">
-        <img src="img/cw_logo-horizontal.png" alt="charity: water logo" style="width: 90%; height: auto; display: block;" />
+        <img src="img/cw_logo-horizontal.png" alt="charity: water logo" />
       </div>
-      <!-- LevelUp: Reset 버튼 -->
       <button id="btnReset" class="resetBtn" aria-label="Reset game">Reset</button>
     </div>
 
@@ -42,7 +41,7 @@
 
     <div id="canWrap" class="canWrap">
       <div id="can" class="can" aria-label="Jerry can (move left/right)">
-        <img src="img/water-can-transparent.png" alt="Jerry can" style="width: 100%; height: 90%; object-fit: contain;" />
+        <img src="img/water-can-transparent.png" alt="Jerry can" />
       </div>
     </div>
 
@@ -51,9 +50,34 @@
       <div class="modal" role="document">
         <div class="modalHeader">Clean Water Builder</div>
         <div class="modalBody">
-          <p class="lineTop">Tap <strong>Start</strong> to begin.</p>
-          <p class="lineBottom">Catch clean drops, avoid dirty ones!</p>
+          <p class="lineTop">Choose a difficulty and press <strong>Start</strong>.</p>
+
+          <!-- NEW: Difficulty selector -->
+          <fieldset class="diffSet" aria-label="difficulty selector">
+            <legend>Difficulty</legend>
+            <label class="chip">
+              <input type="radio" name="difficulty" value="easy" checked>
+              <span>Easy</span>
+            </label>
+            <label class="chip">
+              <input type="radio" name="difficulty" value="normal">
+              <span>Normal</span>
+            </label>
+            <label class="chip">
+              <input type="radio" name="difficulty" value="hard">
+              <span>Hard</span>
+            </label>
+          </fieldset>
+
+          <p class="lineBottom">Catch clean drops, avoid dirty ones and obstacles!</p>
         </div>
+
+        <!-- NEW: 브랜드 링크(About / Donate) -->
+        <div class="row row-links" aria-label="charity: water links">
+          <a class="linkBtn" href="https://www.charitywater.org/" target="_blank" rel="noopener">About charity: water</a>
+          <a class="linkBtn -donate" href="https://www.charitywater.org/donate" target="_blank" rel="noopener">Donate</a>
+        </div>
+
         <div class="row">
           <button id="btnStart">Start</button>
         </div>
@@ -67,6 +91,7 @@
         <div class="modalBody">
           <p class="lineTop">You Gave Clean Water to</p>
           <p class="bigNumber" id="peopleNum">0 People!</p>
+          <p class="miniNote">Help more people: <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener">Donate</a></p>
         </div>
         <div class="row">
           <button id="btnReplay">Play Again</button>
@@ -74,6 +99,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer links -->
+    <footer class="gameFooter" aria-label="charity: water footer links">
+      <p>
+        Learn more at
+        <a href="https://www.charitywater.org/" target="_blank" rel="noopener">charity: water</a>
+        &nbsp;|&nbsp;
+        <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener">Donate</a>
+      </p>
+    </footer>
   </div>
 
   <script defer src="script.js"></script>
