@@ -60,9 +60,9 @@ function loadAudio(path, volume = 0.6){
 
 // 파일 경로는 프로젝트에 맞게 sounds/ 폴더에 넣어주세요
 const SFX = {
-  clean:    loadAudio('sounds/clean-boing.mp3',   0.55), // 깨끗한 물: 또잉
+  clean:    loadAudio('sounds/clean-boing.wav',   0.55), // 깨끗한 물: 또잉
   obstacle: loadAudio('sounds/obstacle-beep.mp3', 0.60), // 빨간 물: 삐—
-  dirty:    loadAudio('sounds/dirty-leak.mp3',    0.60), // 더러운 물: 물 새는 소리
+  dirty:    loadAudio('sounds/dirty-leak.wav',    0.60), // 더러운 물: 물 새는 소리
 };
 
 function playSfx(aud){
