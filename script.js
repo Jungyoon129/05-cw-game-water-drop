@@ -19,7 +19,7 @@ const UI = {
   btnMenu: document.getElementById('btnMenu'),
   btnReset: document.getElementById('btnReset'),
   boostBadge: document.getElementById('boostBadge'),
-  toast: document.getElementById('toast'),            // ★ 추가: 토스트
+  toast: document.getElementById('toast'),
 };
 
 // ========= Difficulty presets =========
@@ -45,10 +45,10 @@ const state = {
   speedMul: 1,
   currentSpawn: CFG.spawn,
   difficulty: 'normal',
-  villages: 0,                        // ★ 추가: 10점당 1마을 카운트
+  villages: 0, // 10점당 1마을
 };
 
-// ========= SFX (간단 on/off + 로더) =========
+// ========= SFX =========
 const SETTINGS = { sfxEnabled: true };
 
 function loadAudio(path, volume = 0.6){
@@ -58,19 +58,50 @@ function loadAudio(path, volume = 0.6){
   return a;
 }
 
-// 파일 경로는 프로젝트에 맞게 sounds/ 폴더에 넣어주세요
+// 파일명 확정: clean-boing.wav / dirty-leak.wav / obstacle-beep.mp3
 const SFX = {
-  clean:    loadAudio('sounds/clean-boing.wav',   0.55), // 깨끗한 물: 또잉
-  obstacle: loadAudio('sounds/obstacle-beep.mp3', 0.60), // 빨간 물: 삐—
-  dirty:    loadAudio('sounds/dirty-leak.wav',    0.60), // 더러운 물: 물 새는 소리
+  clean:    loadAudio('sound/clean-boing.wav',   0.55), // 깨끗한 물: 또잉
+  dirty:    loadAudio('sound/dirty-leak.wav',    0.60), // 더러운 물: 물 새는 소리
+  obstacle: loadAudio('sound/obstacle-beep.mp3', 0.60), // 빨간 물: 삐—
 };
+
+// SFX 에러 로깅
+Object.entries(SFX).forEach(([key, aud])=>{
+  if (!aud) return;
+  aud.addEventListener('error', ()=>{
+    console.error(`[SFX] load error for "${key}":`, aud.src, aud.error || '(no detail)');
+  });
+});
 
 function playSfx(aud){
   if(!SETTINGS.sfxEnabled || !aud) return;
-  try { aud.currentTime = 0; aud.play(); } catch(e) {}
+  try {
+    aud.currentTime = 0;
+    const p = aud.play();
+    if (p && typeof p.then === 'function') {
+      p.catch(err=>{
+        console.warn('[SFX] play blocked/rejected:', aud.src, err?.name || err);
+      });
+    }
+  } catch(e) {
+    console.warn('[SFX] play exception:', e);
+  }
 }
 
-// ========= Toast =========
+// 사용자 제스처 이후 오디오 unlock (iOS/Safari 대응 강화: 여러 이벤트에 1회 바인딩)
+function primeAudioOnce(){
+  const audios = Object.values(SFX).filter(Boolean);
+  audios.forEach(a=>{
+    a.muted = true;
+    a.play().then(()=>{
+      a.pause();
+      a.currentTime = 0;
+      a.muted = false;
+    }).catch(()=>{ /* 첫 시도 실패해도 이후 상호작용에서 재시도됨 */ });
+  });
+}
+
+// ========= Toast / Milestone =========
 function showToast(message, ms=1600){
   if(!UI.toast) return;
   UI.toast.textContent = message;
@@ -78,7 +109,7 @@ function showToast(message, ms=1600){
   setTimeout(()=> UI.toast.classList.remove('show'), ms);
 }
 
-// 10점마다 village 1 증가 → 토스트
+// 점수 10점마다 village 1 증가 → 토스트
 function checkVillageMilestone(){
   const newVillages = Math.floor(state.score / 10);
   if (newVillages > state.villages){
@@ -92,6 +123,7 @@ function checkVillageMilestone(){
   }
 }
 
+// ========= Core HUD/Loop =========
 function updateHUD(){
   UI.timeFill.style.width = (state.time / CFG.duration * 100) + '%';
 
@@ -120,7 +152,7 @@ function resetState(){
   state.running = false;
   state.speedMul = 1;
   state.currentSpawn = CFG.spawn;
-  state.villages = 0;                       // ★ 마일스톤 초기화
+  state.villages = 0;
   UI.play.innerHTML = '';
   updateHUD();
 }
@@ -176,6 +208,7 @@ function hideStart(){
   UI.start.style.display = 'none';
 }
 
+// ========= Spawner / Collision =========
 function spawn(){
   const el = document.createElement('i');
 
@@ -220,7 +253,7 @@ function checkCollision(drop){
         UI.scoreCenter.classList.remove('pop');
       }, 500);
 
-      // ★ 사운드 + 마일스톤
+      // SFX + 마일스톤
       playSfx(SFX.clean);
       checkVillageMilestone();
 
@@ -231,7 +264,6 @@ function checkCollision(drop){
       UI.qualityBar.classList.add('shake','flash');
       setTimeout(()=>{ UI.qualityBar.classList.remove('shake','flash'); }, 520);
 
-      // ★ 사운드
       playSfx(SFX.dirty);
 
     } else if (drop.dataset.type === 'obstacle') {
@@ -251,7 +283,6 @@ function checkCollision(drop){
       UI.qualityBar.classList.add('flash','shake');
       setTimeout(()=>{ UI.qualityBar.classList.remove('flash','shake'); }, 520);
 
-      // ★ 사운드
       playSfx(SFX.obstacle);
     }
 
@@ -262,7 +293,7 @@ function checkCollision(drop){
   if(state.pollution >= 100){ endRound(false); } // lose if pollution 100
 }
 
-// Drag can left-right
+// ========= Drag can left-right =========
 let isDragging = false;
 UI.can.addEventListener('pointerdown', ()=>{ isDragging = true; });
 document.addEventListener('pointerup',   ()=>{ isDragging = false; });
@@ -283,7 +314,7 @@ document.addEventListener('pointermove', (e)=>{
   }
 });
 
-// Simple emoji confetti
+// ========= Simple emoji confetti =========
 function burstConfetti(){
   const emojis = ['🎉','✨','💛','💧','🎊'];
   const N = 36;
@@ -299,15 +330,25 @@ function burstConfetti(){
   }
 }
 
-// Buttons
+// ========= Buttons =========
+
+// 오디오 언락: Start 버튼에 다양한 제스처로 1회만 바인딩
+if (UI.btnStart) {
+  ['pointerdown','touchstart','mousedown','click'].forEach(ev=>{
+    UI.btnStart.addEventListener(ev, primeAudioOnce, { once: true });
+  });
+}
+
+// 실제 게임 시작은 click 한 번만!
 UI.btnStart  && UI.btnStart.addEventListener('click', ()=>{
   applyDifficulty();
   hideStart();
   resetAndStart();
 });
+
 UI.btnReplay && UI.btnReplay.addEventListener('click', resetAndStart);
 UI.btnMenu   && UI.btnMenu.addEventListener('click', showStart);
 UI.btnReset  && UI.btnReset.addEventListener('click', resetAndStart);
 
-// First load → show start
+// ========= First load =========
 showStart();
